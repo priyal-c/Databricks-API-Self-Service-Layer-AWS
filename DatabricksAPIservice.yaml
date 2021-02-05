@@ -1,0 +1,280 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  language:
+    Description: langutage for execution context
+    Type: String
+    Default: sql
+  clutserId:
+    Description: cluster id of Databricks cluster
+    Type: String
+    Default: 0113-152430-hes393
+  host:
+    Description: 'databricks workspace host, found in Databricks workspace url'
+    Type: String
+    Default: adb-1888680743192106.6.azuredatabricks.net
+  token:
+    Description: Databricks PAT( Personal Access Token) for authentication
+    Type: String
+    NoEcho: true
+    Default: dapi64767f7e5f4642e8bfa7f9d02c46f644-2
+  lambdas3bucket:
+    Description: S3 bucket for Lambda Zip Archive
+    Type: String
+    Default: databricksapiservice
+  CodeKey:
+    Description: Lambda Zip Archive name
+    Type: String
+    Default: DatabricksAPIServiceLayer.zip
+Resources:
+  # this Lambda function creates Databricks cluster execution context to make Databricks APIs
+  CustomFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      Code:
+        ZipFile: >
+          #Import modules
+
+          import json, boto3, logging
+
+          from botocore.vendored import requests
+
+
+          #Define logging properties
+
+          log = logging.getLogger()
+
+          log.setLevel(logging.INFO)
+
+
+
+
+          #Main Lambda function to be excecuted
+
+          def lambda_handler(event, context):
+              #Initialize the status of the function
+              status="SUCCESS"
+              responseData = {}
+
+
+              #Read and log the input value named "Input1"
+              language_in=event['ResourceProperties']['language']#'sql'
+              clusterId_in= event['ResourceProperties']['clutserId']#'0113-152430-hes393'
+              host_in= event['ResourceProperties']['host']#'adb-1888680743192106.6.azuredatabricks.net'
+              auth_token= event['ResourceProperties']['token']#'dapi64767f7e5f4642e8bfa7f9d02c46f644-2'
+              hed = {'Authorization': 'Bearer ' + auth_token}
+              data = {"language": language_in, "clusterId": clusterId_in}
+              url = f"https://{host_in}/api/1.2/contexts/create"
+              responseData = requests.post(url, json=data, headers=hed) #execute create context API
+              log.info("responsepost:")
+              log.info(responseData.json())
+              #return the response back to the S3 URL to notify CloudFormation about the code being run
+              response=respond(event,context,status,responseData.json(),None)
+
+              #Function returns the response from the S3 URL
+              return {
+                  "Response" :response
+              }
+
+          def respond(event, context, responseStatus, responseData,
+          physicalResourceId):
+              #Build response payload required by CloudFormation
+              responseBody = {}
+              responseBody['Status'] = responseStatus
+              responseBody['Reason'] = 'Details in: ' + context.log_stream_name
+              responseBody['PhysicalResourceId'] = context.log_stream_name
+              responseBody['StackId'] = event['StackId']
+              responseBody['RequestId'] = event['RequestId']
+              responseBody['LogicalResourceId'] = event['LogicalResourceId']
+              responseBody['Data'] = responseData
+
+              #Convert json object to string and log it
+              json_responseBody = json.dumps(responseBody)
+              log.info("Response body: " + str(json_responseBody))
+
+              #Set response URL
+              responseUrl = event['ResponseURL']
+
+              #Set headers for preparation for a PUT
+              headers = {
+              'content-type' : '',
+              'content-length' : str(len(json_responseBody))
+              }
+
+              #Return the response to the signed S3 URL
+              try:
+                  response = requests.put(responseUrl,
+                  data=json_responseBody,
+                  headers=headers)
+                  log.info("Status code: " + str(response.reason))
+                  status="SUCCESS"
+                  return status
+              #Defind what happens if the PUT operation fails
+              except Exception as e:
+                  log.error("send(..) failed executing requests.put(..): " + str(e))
+                  status="FAILED"
+                  return status
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaFunctionRole.Arn
+      Runtime: python3.6
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 5dec056b-d80e-4f1f-b281-ebb0868ef51f
+  # IAM role attached to Lambda Function
+  LambdaFunctionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - 'arn:aws:iam::aws:policy/SecretsManagerReadWrite'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 188efd9d-b634-4fb3-aafe-c360e88889a5
+  # Custom resource calling lambda function to create the Databricks Execution Context
+  DatabricksContext:
+    Type: 'Custom::DatabricksContext'
+    Properties:
+      ServiceToken: !GetAtt CustomFunction.Arn
+      language:
+        Ref: language
+      clutserId:
+        Ref: clutserId
+      host:
+        Ref: host
+      token:
+        Ref: token
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: df1cf88d-31d7-4685-b0e4-7f0132d3c027
+ # Core Lambda Function making REST API calls to Databricks 
+  testDBAPILambda:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: testDBAPI/lambda_function.lambda_handler
+      Runtime: python3.6
+      CodeUri: 
+        Bucket: !Ref lambdas3bucket # S3 bucket where we have Lambda ZIP Archive
+        Key: !Ref CodeKey # lambda ZIP archive
+      Description: 'AWS lambada Function making Databricks APIs'
+      MemorySize: 128
+      Timeout: 100
+      Role: !GetAtt LambdaFunctionRole.Arn
+      Events: #making the HTTP Event drive lambda function
+        Api1:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+      Environment:
+        Variables:
+          clusterId: !Ref clutserId
+          contextId: # getting Databricks Execution Context ID from above custom Lambda fucntion
+            'Fn::GetAtt':
+                - DatabricksContext
+                - id
+          host: !Ref host
+          language: !Ref language      
+
+  
+  apiGateway: # lauching API Gateway
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Name: "TestDBRAPI"
+      Description: "API Gateway for Databricks API layer"
+  # creating child resource for API gateway
+  apiGatwaySelectResource:
+    Type: 'AWS::ApiGateway::Resource'
+    Properties:
+        RestApiId: !Ref apiGateway
+        ParentId: !GetAtt 
+            - apiGateway
+            - RootResourceId
+        PathPart: select
+  #child method in API gateway
+  apiGatewaySelectMethod: 
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      AuthorizationType: "NONE"
+      HttpMethod: "ANY"
+      ResourceId: !Ref apiGatwaySelectResource
+      RestApiId: !Ref apiGateway           
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Join ["", ["arn:aws:apigateway:", !Ref "AWS::Region", ":lambda:path/2015-03-31/functions/", !GetAtt testDBAPILambda.Arn, "/invocations"] ]
+        PassthroughBehavior: WHEN_NO_MATCH
+  # permission to API Gateway to make call main lambda Function
+  FunctionPermissions:
+    Type: "AWS::Lambda::Permission"
+    Properties: 
+      Action: "lambda:InvokeFunction"        
+      FunctionName: !GetAtt testDBAPILambda.Arn
+      Principal: "apigateway.amazonaws.com"
+      SourceArn: !Join [ "", ["arn:aws:execute-api:", !Ref "AWS::Region", ":", !Ref "AWS::AccountId", ":", !Ref apiGateway, "/*" ] ]
+  # Deploying the resource  to test stage    
+  Deployment:
+    DependsOn:
+      - testDBAPILambda
+      - apiGatewaySelectMethod
+    Type: 'AWS::ApiGateway::Deployment'
+    Properties:
+      RestApiId: !Ref apiGateway
+      StageName: test
+  
+# secret manager which will hold the Databricks PAT token    
+  DBaccesskey:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: DBaccesskey
+      Description: This secret storing the Databricks PAT token
+      SecretString: !Sub '{"token": "${token}"}'
+      Tags:
+        -
+          Key: Databricks_API   
+          Value: PAT
+      
+Outputs:
+  ApiUrl:
+    Description: click on the URL to call GET api
+    Value: !Join ["",["https://",!Ref apiGateway,".execute-api.",!Ref "AWS::Region",".amazonaws.com/test/select?id=1"]]
+      
+Metadata:
+  'AWS::CloudFormation::Designer':
+    188efd9d-b634-4fb3-aafe-c360e88889a5:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 60
+        'y': 90
+      z: 1
+      embeds: []
+    5dec056b-d80e-4f1f-b281-ebb0868ef51f:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 180
+        'y': -160
+      z: 1
+      embeds: []
+    df1cf88d-31d7-4685-b0e4-7f0132d3c027:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 60
+        'y': 210
+      z: 1
+      embeds: []
