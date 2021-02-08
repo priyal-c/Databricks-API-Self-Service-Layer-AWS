@@ -22,11 +22,11 @@ Here are the steps to deploy the following sample setup in your AWS account:
   2.1 Log on to your AWS account console, go to CloudFormaion service, then click create new stack -> select "with a new resources (Standard) option<br />
   2.2 provide s3 path where you have uploaded above CloudFormation script <br />
   2.3 Provide values for below given parameters: <br />
-      2.3.1 clutserId- provide clusterid copied from above the step <br />
-      2.3.2 host - provide databricks workspace URL without https <br />
-      2.3.3 lambdas3path - provide s3 path of lambda zip archive file <br />
-      2.3.4 language - let the language be sql <br />
-      2.3.5 PAT - provide the above generated Databricks PAT token <br />
+       2.3.1 clutserId- provide clusterid copied from above the step <br />
+       2.3.2 host - provide databricks workspace URL without https <br />
+       2.3.3 lambdas3path - provide s3 path of lambda zip archive file <br />
+       2.3.4 language - let the language be sql <br />
+       2.3.5 PAT - provide the above generated Databricks PAT token <br />
       
   
            
