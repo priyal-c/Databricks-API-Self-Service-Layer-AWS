@@ -43,6 +43,19 @@ Here are the steps to deploy the following sample setup in your AWS account:
  5. Go to output section of CloudFormation, where in you will find "ApIurl" key which has value making GET api call to newly createed Lambada function by passing the id parameter , Grab that URL and paste it into the broweser and hit enter
  
  ![alt text](https://github.com/priyal-c/Databricks-API-Self-Service-Layer-AWS/blob/main/output/CloudFormation_output.png)
+ 
+  once you run the output URL on the browser, it will make a GET api call to Lambda by passing id paramter as 1, then Lambda will in turn parse the GET api      request along with the parameter and handle all the back and forth communication between the Databricks to get the output back (under the hood Lambda will execute the SQL query as "select * from diamons where id = {parameter_passed_by API request}"), once Lambda receives the request it will relay it back to API Gateway, which in turn relay back to client browser as given below 
+  
+ ![alt text](https://github.com/priyal-c/Databricks-API-Self-Service-Layer-AWS/blob/main/output/API_output.png)
+ 
+ 
+ try changing the id paramter values in browser to 2 or 3 or 4 and hit enter, each time you will get a different output, you have successfully deployed Databricks Self Service API Layer!
+ 
+ 
+ ![alt text](https://github.com/priyal-c/Databricks-API-Self-Service-Layer-AWS/blob/main/output/API_output1.png)
+ 
+ 
+ 
       
   
            
