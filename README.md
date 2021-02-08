@@ -15,7 +15,7 @@ Here are the steps to deploy the following sample setup in your AWS account:
            ![alt text](https://forums.databricks.com/storage/attachments/1028-clusterid.png) 
            
   1.5 Download the AWS CloudFormation Tempate- DatabricksAPIservice.yaml and AWS Lambda Source Code - DatabricksAPIServiceLayer.zip  <br />
-  1.6 Upload above artifacts in the s3 bucket under your AWS account < br />
+  1.6 Upload above artifacts in the s3 bucket under your AWS account <br />
   1.7 Copy workspace URL with https, that will act as host parameter in the CloudFormation script < br />
 
 2. Execute the CloudFomration script to delpoy the sample API self service solution in your AWS account < br />
