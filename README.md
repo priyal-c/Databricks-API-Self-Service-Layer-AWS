@@ -1,6 +1,6 @@
 # Databricks-API-Self-Service-Layer-AWS
 
-Solution Brief:
+**Solution Brief:**
 
 The objective of this sample setup is to give you end-to-end visibility into how the Databricks API self-service layer solution will work.
 
@@ -10,7 +10,7 @@ Once you deploy this solution in your AWS account, you can use it to make a GET 
 ![alt text](https://github.com/priyal-c/Databricks-API-Self-Service-Layer-AWS/blob/main/Databricks%20API%20Self%20Service%20Layer.png)
 
 
-Here are the steps to deploy the sample set up in your AWS account
+**Here are the steps to deploy the sample set up in your AWS account**
 
 1. Prerequisites: <br />
   1.1 Databricks Workspace is up and running <br />
