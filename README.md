@@ -29,6 +29,16 @@ Here are the steps to deploy the following sample setup in your AWS account:
     - lambdas3path - provide s3 path of lambda zip archive file <br />
     - language - let the language be sql <br />
     - PAT - provide the above generated Databricks PAT token <br />
+    
+ 3. click "Next" till you reach "create stack" option, click on the create stack option.
+ 
+ 4. Once successful a CloudFormation stack will create below resources-
+   - API Gateway 
+   - "Select" resource and method attached to that resource 
+   - deployment as "test" for the API gateway
+   - AWS Lambda Function - testDBAPILambda as an "API Mediation layer 
+   - Databricks SQL execuiont context using custom Lambda fucntion
+   - A secrte- DBaccesskey in AWS Secret Manager to securly save your Databricks PAT
       
   
            
