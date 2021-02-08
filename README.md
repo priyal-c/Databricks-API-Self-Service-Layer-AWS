@@ -14,7 +14,7 @@ Here are the steps to deploy the following sample setup in your AWS account:
      Note- Simple way to get the clusterid is to click on your cluster in the Clusters tab, Change the UI interface to json, It will give the all details about your            cluster including the clusterid <br />
            ![alt text](https://forums.databricks.com/storage/attachments/1028-clusterid.png) 
            
-  1.5 Download the AWS CloudFormation Tempate- DatabricksAPIservice.yaml and AWS Lambda Source Code - DatabricksAPIServiceLayer.zip <br />
+  1.5 Download the AWS CloudFormation Tempate- DatabricksAPIservice.yaml and AWS Lambda Source Code - DatabricksAPIServiceLayer.zip  <br />
   1.6 Upload above artifacts in the s3 bucket under your AWS account < br />
   1.7 Copy workspace URL with https, that will act as host parameter in the CloudFormation script < br />
 
