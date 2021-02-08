@@ -9,4 +9,4 @@ Here are the steps to deploy the following sample setup in your AWS account:
 1. Prerequisites:
   1.1 Databricks Workspace up and running
   1.2 Generate Databricks PAT ( Personal Access Token)- [document link](https://docs.databricks.com/dev-tools/api/latest/authentication.html#generate-a-personal-access-token)
-  1.3 
+  1.3 Create a simple Databricks cluster
