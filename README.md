@@ -4,14 +4,13 @@ Solution Brief:
 
 The objective of this sample setup is to give you end-to-end visibility into how the Databricks API self-service layer solution will work.
 
-Once you deploy this solution in your AWS account, you can use it to make a GET API call by passing a parameter named "id" and then under the hood, the API layer will query the sample dataset via Databrick cluster to table name "diamonds" by executing the query as "select * from diamonds where id= {parameter_passed_by API request}" and then the send output back to the client via API response.
-
-
-Here are the steps to deploy the sample set up in your AWS account:
-
+Once you deploy this solution in your AWS account, you can use it to make a GET API call by passing a parameter named "id" and then under the hood, the API layer will query the sample dataset via Databrick cluster to table name "diamonds" by executing the query as "select * from diamonds where id= {parameter_passed_by API request}" and then the send output back to the client via API response
 
 
 ![alt text](https://github.com/priyal-c/Databricks-API-Self-Service-Layer-AWS/blob/main/Databricks%20API%20Self%20Service%20Layer.png)
+
+
+Here are the steps to deploy the sample set up in your AWS account
 
 1. Prerequisites: <br />
   1.1 Databricks Workspace is up and running <br />
