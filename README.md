@@ -4,7 +4,7 @@
 
 The objective of this sample setup is to give you end-to-end visibility into how the Databricks API self-service layer solution will work.
 
-Once you deploy this solution in your AWS account, you can use it to make a GET API call by passing a parameter named "id" and then under the hood, the API layer will query the sample dataset via Databrick cluster to table name "diamonds" by executing the query as "select * from diamonds where id= {parameter_passed_by API request}" and then the send output back to the client via API response
+Once you deploy this solution in your AWS account, you can use it to make a GET API call by passing a parameter named "id" and then under the hood, the API layer will query the sample dataset via Databrick cluster to table name "diamonds" by executing the query as "select * from diamonds where _c0= {parameter_passed_by API request}" and then the send output back to the client via API response
 
 
 ![alt text](https://github.com/priyal-c/Databricks-API-Self-Service-Layer-AWS/blob/main/Databricks%20API%20Self%20Service%20Layer.png)
@@ -50,7 +50,7 @@ Once you deploy this solution in your AWS account, you can use it to make a GET 
  
  ![alt text](https://github.com/priyal-c/Databricks-API-Self-Service-Layer-AWS/blob/main/output/CloudFormation_output.png)
  
-  once you run the output URL on the browser, it will make a GET API call to Lambda by passing id parameter as 1, then Lambda will, in turn, parse the GET API request along with the parameter and handle all the back and forth communication between the Databricks to get the output back (under the hood Lambda will execute the SQL query as "select * from diamonds where id = {parameter_passed_by API request}"), once Lambda receives the request it will relay it back to API Gateway, which in turn relay back to the client browser as given below 
+  once you run the output URL on the browser, it will make a GET API call to Lambda by passing id parameter as 1, then Lambda will, in turn, parse the GET API request along with the parameter and handle all the back and forth communication between the Databricks to get the output back (under the hood Lambda will execute the SQL query as "select * from diamonds where _c0= {parameter_passed_by API request}"), once Lambda receives the request it will relay it back to API Gateway, which in turn relay back to the client browser as given below 
   
  ![alt text](https://github.com/priyal-c/Databricks-API-Self-Service-Layer-AWS/blob/main/output/API_output.png)
  
