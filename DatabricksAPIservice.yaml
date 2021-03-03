@@ -61,9 +61,9 @@ Resources:
 
               #Read and log the input value named "Input1"
               language_in=event['ResourceProperties']['language']#'sql'
-              clusterId_in= event['ResourceProperties']['clutserId']#'0113-152430-hes393'
-              host_in= event['ResourceProperties']['host']#'adb-1888680743192106.6.azuredatabricks.net'
-              auth_token= event['ResourceProperties']['token']#'dapi64767f7e5f4642e8bfa7f9d02c46f644-2'
+              clusterId_in= event['ResourceProperties']['clutserId']
+              host_in= event['ResourceProperties']['host']
+              auth_token= event['ResourceProperties']['token']
               hed = {'Authorization': 'Bearer ' + auth_token}
               data = {"language": language_in, "clusterId": clusterId_in}
               url = f"https://{host_in}/api/1.2/contexts/create"
